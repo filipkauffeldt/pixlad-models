@@ -44,14 +44,17 @@ if left:
   set -o pipefail
 fi
 
-# MediaPipe: a TFLite model, converted to ONNX. The tool versions are pinned.
+# MediaPipe: a TFLite model, converted to ONNX. tf2onnx names some constants differently on
+# each run, so stable_names.py renames them to get the same bytes every time.
 if [ ! -f "$work/selfie-multiclass.onnx" ]; then
   curl -fsSL "$MEDIAPIPE" -o "$work/selfie_multiclass_256x256.tflite"
-  uv run --no-project --python 3.11.17 \
-    --with tf2onnx==1.17.0 --with tensorflow-cpu==2.15.1 --with numpy==1.26.4 \
-    --with onnx==1.16.2 --with protobuf==4.25.9 --with flatbuffers==25.12.19 \
-    python -m tf2onnx.convert --tflite "$work/selfie_multiclass_256x256.tflite" \
-    --output "$work/selfie-multiclass.onnx" --opset 13
+  py=(uv run --no-project --python 3.11.17
+    --with tf2onnx==1.17.0 --with tensorflow-cpu==2.15.1 --with numpy==1.26.4
+    --with onnx==1.16.2 --with protobuf==4.25.9 --with flatbuffers==25.12.19)
+  "${py[@]}" python -m tf2onnx.convert --tflite "$work/selfie_multiclass_256x256.tflite" \
+    --output "$work/selfie-multiclass.raw.onnx" --opset 13
+  "${py[@]}" python -I stable_names.py "$work/selfie-multiclass.raw.onnx" "$work/selfie-multiclass.onnx"
+  rm "$work/selfie-multiclass.raw.onnx"
 fi
 
 (cd "$work" && sha256sum deimv2-s-wholebody34.onnx deimv2-n-wholebody34.onnx selfie-multiclass.onnx > SHA256SUMS)
