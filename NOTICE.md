@@ -12,4 +12,5 @@ Changes: none. Taken from the folder's release archive and renamed:
 By Google.
 Source: https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite
 Licence: Apache-2.0 (model card).
-Changes: converted from TFLite to ONNX with tf2onnx (opset 13). Weights unchanged.
+Changes: converted from TFLite to ONNX with tf2onnx (opset 13), and internal names renamed
+so the conversion is reproducible. Weights unchanged.
