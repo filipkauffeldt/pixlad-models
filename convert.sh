@@ -13,8 +13,8 @@ MEDIAPIPE=https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie
 # DEIMv2: the two models are members of a 2.5 GB archive. Stream it and stop once both are out.
 if [ ! -f "$work/deimv2-s-wholebody34.onnx" ] || [ ! -f "$work/deimv2-n-wholebody34.onnx" ]; then
   echo "Streaming the DEIMv2 archive (stops once both models are out, a few minutes)..."
-  status=0
-  # curl exits with 23 when python stops reading, which is fine.
+  # curl exits with 23 when python stops reading, so only python's status counts here.
+  set +o pipefail
   curl -fsSL "$PINTO" | python3 -I -c '
 import os, sys, tarfile
 
@@ -40,8 +40,8 @@ with tarfile.open(fileobj=sys.stdin.buffer, mode="r|gz") as tar:
             break
 if left:
     sys.exit("not in the archive: " + ", ".join(left))
-' "$work" || status=$?
-  [ "$status" -eq 0 ] || exit "$status"
+' "$work"
+  set -o pipefail
 fi
 
 # MediaPipe: a TFLite model, converted to ONNX. The tool versions are pinned.
