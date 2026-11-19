@@ -30,8 +30,9 @@ with tarfile.open(fileobj=sys.stdin.buffer, mode="r|gz") as tar:
         if name not in left or not member.isfile():
             continue
         target = left.pop(name)
+        source = tar.extractfile(member)
         with open(f"{out}/{target}.part", "wb") as f:
-            while chunk := tar.extractfile(member).read(1 << 20):
+            while chunk := source.read(1 << 20):
                 f.write(chunk)
         os.rename(f"{out}/{target}.part", f"{out}/{target}")
         print("Extracted", target)
