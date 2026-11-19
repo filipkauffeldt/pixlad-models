@@ -47,8 +47,9 @@ fi
 # MediaPipe: a TFLite model, converted to ONNX. The tool versions are pinned.
 if [ ! -f "$work/selfie-multiclass.onnx" ]; then
   curl -fsSL "$MEDIAPIPE" -o "$work/selfie_multiclass_256x256.tflite"
-  uv run --no-project --python 3.11 \
-    --with tf2onnx --with tensorflow-cpu==2.15.1 --with "numpy<2" --with onnx==1.16.2 \
+  uv run --no-project --python 3.11.17 \
+    --with tf2onnx==1.17.0 --with tensorflow-cpu==2.15.1 --with numpy==1.26.4 \
+    --with onnx==1.16.2 --with protobuf==4.25.9 --with flatbuffers==25.12.19 \
     python -m tf2onnx.convert --tflite "$work/selfie_multiclass_256x256.tflite" \
     --output "$work/selfie-multiclass.onnx" --opset 13
 fi
